@@ -3,7 +3,6 @@
 
 # --- Set up executable path, do not edit ---
 import sys
-
 import inspect
 import numpy as np
 this_file_loc = (inspect.stack()[0][1])
@@ -67,30 +66,12 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid):
     #Transition function for Chapparral, Chapparral burns easily and stays on fire for a while
     #Chapparral burns with fewer neighbours, burns higher, and decays slower
     burningNeighbours = (neighbourcounts[1]+neighbourcounts[2]+neighbourcounts[3]+neighbourcounts[4])
-
-    burning_chaparral_neighbours = (burningNeighbours>3)
-    burning_chaparral_neighbours_above_one = (burningNeighbours>1)
-    burning_chaparral_neighbours_below_four = (burningNeighbours<4)
-
-    #rand_burning_chaparral_neighbours = (burning_chaparral_neighbours_above_one & burning_chaparral_neighbours_below_four )
-    rand_burning_chaparral_neighbours = np.intersect1d(burning_chaparral_neighbours_above_one,burning_chaparral_neighbours_below_four)
-    
-    burning_chaparral_neighbours = burning_chaparral_neighbours & np.random.choice(rand_burning_chaparral_neighbours,np.random.randint(0,len(rand_burning_chaparral_neighbours)))
-
+    burning_chaparral_neighbours = (burningNeighbours>2)
     chaparral_to_burning = cells_in_state_5 & burning_chaparral_neighbours
     grid[chaparral_to_burning]= 4 #change Chapparral to the highest burn count
 
-
     #Transition function for Dense forest, Dense forest doesnt ignite very easily but burns for a long time
     burning_forest_neighbours = (burningNeighbours>5)
-    burning_forest_neighbours_above_two = (burningNeighbours>2)
-    burning_forest_neighbours_below_six = (burningNeighbours<6)
-
-    #rand_burning_forest_neighbours = (burning_forest_neighbours_above_two & burning_forest_neighbours_below_six )
-    rand_burning_forest_neighbours = np.intersect1d(burning_forest_neighbours_above_two,burning_forest_neighbours_below_six)
-
-    burning_forest_neighbours = burning_forest_neighbours & np.random.choice(rand_burning_forest_neighbours,np.random.randint(0,len(rand_burning_forest_neighbours)))
-
     forest_to_burning = cells_in_state_6 & burning_forest_neighbours
     grid[forest_to_burning]=4 #change forest burning
 
@@ -101,7 +82,7 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid):
 
 
     decaygrid[burning_cells]-=1
-    #add decaygrid[cells_in_state_x] for all states to change the decay rates for different terrains
+    #add decaygrid[cells_in_state_x] for all states to change the decay rates for different terrains 
 
     decayed_to_three = (decaygrid == 30)
     grid[decayed_to_three]=3

@@ -24,7 +24,10 @@ def setup(args):
     # -- THE CA MUST BE RELOADED IN THE GUI IF ANY OF THE BELOW ARE CHANGED --
     config.title = "NAME"
     config.dimensions = 2
+<<<<<<< HEAD
     config.wrap = False
+=======
+>>>>>>> 52df54d762bd4fde079b9a6daf6fe6be3b34e111
     #burning states 1-4, non burning 5-8
     # 5 - Chapparral, 6 - Forest, 7 - Canyon, 8-Lake
     config.states = (0,1,2,3,4,5,6,7,8)
@@ -49,7 +52,11 @@ def setup(args):
     return config
 
 
+<<<<<<< HEAD
 def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, firegrid):
+=======
+def transition_function(grid, neighbourstates, neighbourcounts, decaygrid):
+>>>>>>> 52df54d762bd4fde079b9a6daf6fe6be3b34e111
     """Function to apply the transition rules
     and return the new grid"""
     cells_in_state_0=(grid==0)
@@ -67,6 +74,7 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     #Transition function for Chapparral, Chapparral burns easily and stays on fire for a while
     #Chapparral burns with fewer neighbours, burns higher, and decays slower
     burningNeighbours = (neighbourcounts[1]+neighbourcounts[2]+neighbourcounts[3]+neighbourcounts[4])
+<<<<<<< HEAD
     more_than_one_burning_neighbours = burningNeighbours >= 1
     less_than_five_burning_neighbours = burningNeighbours < 5
     chaparral_that_might_burn = more_than_one_burning_neighbours & less_than_five_burning_neighbours & cells_in_state_5
@@ -123,6 +131,43 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     canyon_fire = reached_100_burn & cells_in_state_7
     grid[canyon_fire] = 4
     decayed_to_zero = (decaygrid <= 0)
+=======
+    burning_chaparral_neighbours = (burningNeighbours>3)
+    burning_chaparral_neighbours_above_one = (burningNeighbours>2)
+    burning_chaparral_neighbours_below_four = (burningNeighbours<4)
+
+    rand_burning_chaparral_neighbours = (burning_chaparral_neighbours_above_one & burning_chaparral_neighbours_below_four )
+
+    rand_burning_forest_neighbours = burning_forest_neighbours_above_two & burning_forest_neighbours_below_six
+    sample = numpy.random.choice([True, False], (np.size(rand_burning_forest_neighbours,0), np.size(rand_burning_forest_neighbours,1)))
+
+    temp_burning_chaparral_neighbours =  burning_chaparral_neighbours & rand_burning_forest_neighbours[sample]
+    chaparral_to_burning = cells_in_state_5 & temp_burning_chaparral_neighbours
+    grid[chaparral_to_burning]= 4 #change Chapparral to the highest burn count
+
+    #Transition function for Dense forest, Dense forest doesnt ignite very easily but burns for a long time
+    burning_forest_neighbours = (burningNeighbours>5)
+    forest_to_burning = cells_in_state_6 & burning_forest_neighbours
+    grid[forest_to_burning]=4 #change forest burning
+
+    #Transition function for canyon, burns very easily, only for a few hours
+    burning_canyon_neighbours = (burningNeighbours>0)
+    canyon_to_burning = cells_in_state_7 & burning_canyon_neighbours
+    grid[canyon_to_burning]=4
+
+
+    decaygrid[burning_cells]-=1
+    #add decaygrid[cells_in_state_x] for all states to change the decay rates for different terrains
+
+    decayed_to_three = (decaygrid == 30)
+    grid[decayed_to_three]=3
+
+    decayed_to_two = (decaygrid == 20)
+    grid[decayed_to_two]=2
+    decayed_to_one = (decaygrid==10)
+    grid[decayed_to_one]=1
+    decayed_to_zero = (decaygrid == 0)
+>>>>>>> 52df54d762bd4fde079b9a6daf6fe6be3b34e111
     grid[decayed_to_zero] = 0
 
 
@@ -137,11 +182,17 @@ def main():
     config = setup(sys.argv[1:])
     # Create grid object using parameters from config + transition function
     decaygrid = np.zeros(config.grid_dims)
+<<<<<<< HEAD
     decaygrid.fill(4000)
     firegrid = np.zeros(config.grid_dims)
     firegrid.fill(1)
 
     grid = Grid2D(config, (transition_function, decaygrid, firegrid))
+=======
+    decaygrid.fill(40)
+
+    grid = Grid2D(config, (transition_function, decaygrid))
+>>>>>>> 52df54d762bd4fde079b9a6daf6fe6be3b34e111
 
     # Run the CA, save grid state every generation to timeline
     timeline = grid.run()

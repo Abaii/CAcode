@@ -69,7 +69,7 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     burningNeighbours = (neighbourcounts[1]+neighbourcounts[2]+neighbourcounts[3]+neighbourcounts[4])
     more_than_zero = (grid >= 0)
     NW, N, NE, W, E, SW, S, SE = neighbourstates
-    direction = 2
+    direction = 1
     southernNeighbours = (N <= 4)
     s = southernNeighbours & more_than_zero
     s_neighbours_of_lit_cells = unlitcells & s
@@ -77,26 +77,28 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     northernNeighbours = (S <= 4)
     n_neighbours_of_lit_cells = unlitcells & northernNeighbours
 
-    easternNeighbours = (E>4) & (NE > 4) & (SE > 4)
+    easternNeighbours = (E<=4)
     e_neighbours_of_lit_cells = unlitcells & easternNeighbours
 
-    westernNeighbours = (W>4)&(SW>4)&(NW>4)
+    westernNeighbours = (W<=4)
     w_neighbours_of_lit_cells = unlitcells & westernNeighbours
 
-
+    firegridSize = np.shape(firegrid)
+    (a,b)= firegridSize
+    print(firegridSize)
     if direction == 1:
-        firegrid[0,:]//=1
-        firegrid[s_neighbours_of_lit_cells] *= 1.2
+        firegrid[s_neighbours_of_lit_cells] *= 10
+        firegrid[0,:]//=10
     elif direction == 2:
-        firegrid[n_neighbours_of_lit_cells] *= 1.2
-        firegrid[9,:]//=1.2
+        firegrid[n_neighbours_of_lit_cells] *= 10
+        firegrid[a-1,:]//=10
 
     elif direction == 3:
-        firegrid[w_neighbours_of_lit_cells] *= 1.2
-        firegrid[:,0]//=1.2
+        firegrid[w_neighbours_of_lit_cells] *= 10
+        firegrid[:,0]//=10
     elif direction == 4:
-        firegrid[e_neighbours_of_lit_cells] *= 1.2
-        firegrid[:,9]//=1.2
+        firegrid[e_neighbours_of_lit_cells] *= 10
+        firegrid[:,a-1]//=10
 
     print (firegrid)
 

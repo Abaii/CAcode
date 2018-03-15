@@ -54,21 +54,55 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
 
     """Function to apply the transition rules
     and return the new grid"""
-    cells_in_state_0=(grid==0)
-    cells_in_state_1=(grid==1)
-    cells_in_state_2=(grid==2)
-    cells_in_state_3=(grid==3)
-    cells_in_state_4=(grid==4)
+    cells_in_state_0 =(grid==0)
+    cells_in_state_1 =(grid==1)
+    cells_in_state_2 =(grid==2)
+    cells_in_state_3 =(grid==3)
+    cells_in_state_4 =(grid==4)
     burning_cells = (grid <= 4)
+    unlitcells = (grid >= 5)
     cells_in_state_5 = (grid == 5) # cells that are currently in state 5
     cells_in_state_6 = (grid == 6) # cells that are currently in state 6
     cells_in_state_7 = (grid == 7) # cells that are currently in state 7
     cells_in_state_8 = (grid == 8) # cells that are currently in state 8
-    NW, N, NE, W, E, SW, S, SE = neighbourstates
 
+    burningNeighbours = (neighbourcounts[1]+neighbourcounts[2]+neighbourcounts[3]+neighbourcounts[4])
+    more_than_zero = (grid >= 0)
+    NW, N, NE, W, E, SW, S, SE = neighbourstates
+    direction = 2
+    southernNeighbours = (N <= 4)
+    s = southernNeighbours & more_than_zero
+    s_neighbours_of_lit_cells = unlitcells & s
+
+    northernNeighbours = (S <= 4)
+    n_neighbours_of_lit_cells = unlitcells & northernNeighbours
+
+    easternNeighbours = (E>4) & (NE > 4) & (SE > 4)
+    e_neighbours_of_lit_cells = unlitcells & easternNeighbours
+
+    westernNeighbours = (W>4)&(SW>4)&(NW>4)
+    w_neighbours_of_lit_cells = unlitcells & westernNeighbours
+
+
+    if direction == 1:
+        firegrid[0,:]//=1
+        firegrid[s_neighbours_of_lit_cells] *= 1.2
+    elif direction == 2:
+        firegrid[n_neighbours_of_lit_cells] *= 1.2
+        firegrid[9,:]//=1.2
+
+    elif direction == 3:
+        firegrid[w_neighbours_of_lit_cells] *= 1.2
+        firegrid[:,0]//=1.2
+    elif direction == 4:
+        firegrid[e_neighbours_of_lit_cells] *= 1.2
+        firegrid[:,9]//=1.2
+
+    print (firegrid)
+
+#---------------------------------------------------------------------------------------------------
     #Transition function for Chapparral, Chapparral burns easily and stays on fire for a while
     #Chapparral burns with fewer neighbours, burns higher, and decays slower
-    burningNeighbours = (neighbourcounts[1]+neighbourcounts[2]+neighbourcounts[3]+neighbourcounts[4])
 
     more_than_one_burning_neighbours = burningNeighbours >= 1
     less_than_five_burning_neighbours = burningNeighbours < 5
@@ -80,6 +114,7 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     chaparral_to_burning = cells_in_state_5 & burning_chaparral_neighbours
     firegrid[chaparral_to_burning]= 100 #change Chapparral to the highest burn count
 
+#---------------------------------------------------------------------------------------------------
     #Transition function for Dense forest, Dense forest doesnt ignite very easily but burns for a long time
     #if there are between 4 and 6 burning neighbours then increase the likelihood of it buring
     more_than_three_burning_neighbours = burningNeighbours >= 3
@@ -92,6 +127,7 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     forest_to_burning = cells_in_state_6 & burning_forest_neighbours
     firegrid[forest_to_burning] = 100 #change forest burning
 
+ #---------------------------------------------------------------------------------------------------
     #Transition function for canyon, burns very easily, only for a few hours
     #if the canyon has less than 4 buring neighbours and at least one then
     #increase likelihood of it burning
@@ -106,13 +142,13 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     canyon_to_burning = cells_in_state_7 & burning_canyon_neighbours
     firegrid[canyon_to_burning]= 100
 
+#-----DEFINING WHEN TO DECAY AND BURN CELLS --------------------------------------------------------------
     decaygrid[cells_in_state_2] -= np.random.uniform(40,110, size = np.shape(decaygrid[cells_in_state_2]))
 
     decaygrid[cells_in_state_3] -= np.random.uniform(5,6, size = np.shape(decaygrid[cells_in_state_3]))
 
     decaygrid[cells_in_state_4] -= np.random.uniform(500,1200, size=np.shape(decaygrid[cells_in_state_4]))
 
-    print(decaygrid)
     #add decaygrid[cells_in_state_x] for all states to change the decay rates for different terrains
     reached_100_burn = (firegrid >= 100)
 

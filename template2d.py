@@ -28,15 +28,15 @@ def setup(args):
 
     #burning states 1-4, non burning 5-8
     # 5 - Chapparral, 6 - Forest, 7 - Canyon, 8-Lake
-    config.states = (0,1,2,3,4,5,6,7,8)
+    config.states = (0,1,2,3,4,5,6,7,8,9)
 
     # -------------------------------------------------------------------------
 
     # ---- Override the defaults below (these may be changed at anytime) ----
 
     config.state_colors = [(0,0,0),
-    (0.847,0.302,0.263),(0.847,0.180,0.133),(0.800,0.090,0.047),(0.486,0.031,0.000),
-    (0.923,0.957,0.259),(0.047,0.259,0.019),(0.820,0.816,0.812),(0.137,0.392,0.729)]
+    (0.379,0.586,0.926),(0.847,0.180,0.133),(0.800,0.090,0.047),(0.486,0.031,0.000),
+    (0.923,0.957,0.259),(0.047,0.259,0.019),(0.820,0.816,0.812),(0.137,0.392,0.729),(0.379,0.586,0.926)]
     # config.grid_dims = (200,200)
 
     # ----------------------------------------------------------------------
@@ -59,14 +59,16 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     cells_in_state_2 =(grid==2)
     cells_in_state_3 =(grid==3)
     cells_in_state_4 =(grid==4)
+
     burning_cells = (grid <= 4)
+
     unlitcells = (grid >= 5)
     cells_in_state_5 = (grid == 5) # cells that are currently in state 5
     cells_in_state_6 = (grid == 6) # cells that are currently in state 6
     cells_in_state_7 = (grid == 7) # cells that are currently in state 7
     cells_in_state_8 = (grid == 8) # cells that are currently in state 8
 
-    burningNeighbours = (neighbourcounts[1]+neighbourcounts[2]+neighbourcounts[3]+neighbourcounts[4])
+    burningNeighbours = (neighbourcounts[2]+neighbourcounts[3]+neighbourcounts[4])
     more_than_zero = (grid >= 0)
     NW, N, NE, W, E, SW, S, SE = neighbourstates
     direction = 1
@@ -87,18 +89,18 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     (a,b)= firegridSize
     print(firegridSize)
     if direction == 1:
-        firegrid[s_neighbours_of_lit_cells] *= 10
-        firegrid[0,:]//=10
+        firegrid[s_neighbours_of_lit_cells] *= 2.5
+        firegrid[0,:]//=2.5
     elif direction == 2:
-        firegrid[n_neighbours_of_lit_cells] *= 10
-        firegrid[a-1,:]//=10
+        firegrid[n_neighbours_of_lit_cells] *= 2.5
+        firegrid[a-1,:]//=2.5
 
     elif direction == 3:
-        firegrid[w_neighbours_of_lit_cells] *= 10
-        firegrid[:,0]//=10
+        firegrid[w_neighbours_of_lit_cells] *= 2.5
+        firegrid[:,0]//=2.5
     elif direction == 4:
-        firegrid[e_neighbours_of_lit_cells] *= 10
-        firegrid[:,a-1]//=10
+        firegrid[e_neighbours_of_lit_cells] *= 2.5
+        firegrid[:,a-1]//=2.5
 
     print (firegrid)
 
@@ -143,6 +145,15 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     burning_canyon_neighbours = (burningNeighbours>4)
     canyon_to_burning = cells_in_state_7 & burning_canyon_neighbours
     firegrid[canyon_to_burning]= 100
+#------------------------------------------------------------------------------------------------------
+
+    #Transition function for burning cells
+    #when the water (state 1 ) hits the burning cell then extinguish it
+
+    one_water_neighbour = (neighbourcounts[9] >0)
+    burning_cells_to_be_extinguished = one_water_neighbour & burning_cells
+    print(burning_cells_to_be_extinguished)
+    grid[burning_cells_to_be_extinguished] = 0
 
 #-----DEFINING WHEN TO DECAY AND BURN CELLS --------------------------------------------------------------
     decaygrid[cells_in_state_2] -= np.random.uniform(40,110, size = np.shape(decaygrid[cells_in_state_2]))
@@ -167,7 +178,7 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
 
 
 
-
+    print(decaygrid)
     return grid
 
 

@@ -71,7 +71,6 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     burningNeighbours = (neighbourcounts[2]+neighbourcounts[3]+neighbourcounts[4])
     more_than_zero = (grid >= 0)
     NW, N, NE, W, E, SW, S, SE = neighbourstates
-    direction = 1
     southernNeighbours = (N <= 4)
     s = southernNeighbours & more_than_zero
     s_neighbours_of_lit_cells = unlitcells & s
@@ -87,20 +86,21 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
 
     firegridSize = np.shape(firegrid)
     (a,b)= firegridSize
-    print(firegridSize)
-    if direction == 1:
-        firegrid[s_neighbours_of_lit_cells] *= 2.5
-        firegrid[0,:]//=2.5
-    elif direction == 2:
-        firegrid[n_neighbours_of_lit_cells] *= 2.5
+    direction = "north"
+
+    if direction == "north":
+        firegrid[s_neighbours_of_lit_cells] *= 1.2
+        firegrid[0,:]//=1.2
+    elif direction == "south":
+        firegrid[n_neighbours_of_lit_cells] *= 1.2
         firegrid[a-1,:]//=2.5
 
-    elif direction == 3:
-        firegrid[w_neighbours_of_lit_cells] *= 2.5
-        firegrid[:,0]//=2.5
-    elif direction == 4:
-        firegrid[e_neighbours_of_lit_cells] *= 2.5
-        firegrid[:,a-1]//=2.5
+    elif direction == "west":
+        firegrid[w_neighbours_of_lit_cells] *= 1.2
+        firegrid[:,0]//=1.2
+    elif direction == "east":
+        firegrid[e_neighbours_of_lit_cells] *= 1.2
+        firegrid[:,a-1]//=1.2
 
     print (firegrid)
 
@@ -116,7 +116,7 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
 
     burning_chaparral_neighbours = (burningNeighbours>5)
     chaparral_to_burning = cells_in_state_5 & burning_chaparral_neighbours
-    firegrid[chaparral_to_burning]= 100 #change Chapparral to the highest burn count
+    firegrid[chaparral_to_burning]= 6000 #change Chapparral to the highest burn count
 
 #---------------------------------------------------------------------------------------------------
     #Transition function for Dense forest, Dense forest doesnt ignite very easily but burns for a long time
@@ -129,7 +129,7 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     #if there are more than 6 burning neighbours then set the forest on fire.
     burning_forest_neighbours = (burningNeighbours>6)
     forest_to_burning = cells_in_state_6 & burning_forest_neighbours
-    firegrid[forest_to_burning] = 100 #change forest burning
+    firegrid[forest_to_burning] = 6000 #change forest burning
 
  #---------------------------------------------------------------------------------------------------
     #Transition function for canyon, burns very easily, only for a few hours
@@ -144,7 +144,7 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     #if a canyon has more than 4 burning neighbours
     burning_canyon_neighbours = (burningNeighbours>4)
     canyon_to_burning = cells_in_state_7 & burning_canyon_neighbours
-    firegrid[canyon_to_burning]= 100
+    firegrid[canyon_to_burning]= 6000
 #------------------------------------------------------------------------------------------------------
 
     #Transition function for burning cells
@@ -152,7 +152,6 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
 
     one_water_neighbour = (neighbourcounts[9] >0)
     burning_cells_to_be_extinguished = one_water_neighbour & burning_cells
-    print(burning_cells_to_be_extinguished)
     grid[burning_cells_to_be_extinguished] = 0
 
 #-----DEFINING WHEN TO DECAY AND BURN CELLS --------------------------------------------------------------
@@ -163,7 +162,7 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     decaygrid[cells_in_state_4] -= np.random.uniform(500,1200, size=np.shape(decaygrid[cells_in_state_4]))
 
     #add decaygrid[cells_in_state_x] for all states to change the decay rates for different terrains
-    reached_100_burn = (firegrid >= 100)
+    reached_6000_burn = (firegrid >= 6000)
 
     chaparral_fire = reached_100_burn & cells_in_state_5
     grid[chaparral_fire] = 2

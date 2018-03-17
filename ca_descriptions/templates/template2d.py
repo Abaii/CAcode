@@ -135,14 +135,14 @@ def transition_function(grid, neighbourstates, neighbourcounts, decaygrid, fireg
     #Transition function for canyon, burns very easily, only for a few hours
     #if the canyon has less than 4 buring neighbours and at least one then
     #increase likelihood of it burning
-    has_a_burning_neighbour = burningNeighbours > 0 #more than 1 burning neighbour
-    less_than_four_burning_neighbours = burningNeighbours > 4 #less than 4 burning neighbours
-    canyon_might_burn = has_a_burning_neighbour & less_than_four_burning_neighbours & cells_in_state_7
+    #has_a_burning_neighbour = burningNeighbours > 0 #more than 1 burning neighbour
+    l#ess_than_four_burning_neighbours = burningNeighbours > 4 #less than 4 burning neighbours
+    #canyon_might_burn = has_a_burning_neighbour & cells_in_state_7
 
     #increase likelhood of it burning
-    firegrid[canyon_might_burn] += np.random.uniform(25,60, size = np.shape(firegrid[canyon_might_burn]))
+    #firegrid[canyon_might_burn] += np.random.uniform(2500,3, size = np.shape(firegrid[canyon_might_burn]))
     #if a canyon has more than 4 burning neighbours
-    burning_canyon_neighbours = (burningNeighbours>4)
+    burning_canyon_neighbours = (burningNeighbours>0)
     canyon_to_burning = cells_in_state_7 & burning_canyon_neighbours
     firegrid[canyon_to_burning]= 6000
 #------------------------------------------------------------------------------------------------------
